@@ -28,8 +28,10 @@ class _ReservationsPageState extends State<ReservationsPage> {
 
   Future<void> _loadReservations() async {
     try {
-      List<Reservation> activeReservations = await ReservationService.getActiveReservations();
-      List<Reservation> inactiveReservations = await ReservationService.getInactiveReservations();
+      List<Reservation> activeReservations =
+          await ReservationService.getActiveReservations();
+      List<Reservation> inactiveReservations =
+          await ReservationService.getInactiveReservations();
       setState(() {
         _reservationList = [...activeReservations, ...inactiveReservations];
         _filteredReservationList = _reservationList;
@@ -41,18 +43,27 @@ class _ReservationsPageState extends State<ReservationsPage> {
     }
   }
 
-void _filterReservations() {
-  String query = _searchController.text.toLowerCase();
-  setState(() {
-    _filteredReservationList = _reservationList.where((reservation) {
-      bool matchesClientName = reservation.clientNames?.toLowerCase().contains(query) ?? false;
-      bool matchesSellerName = reservation.sellerNames?.toLowerCase().contains(query) ?? false;
-      bool matchesTotal = reservation.totalReservation?.toString().contains(query) ?? false;
-      bool matchesDateTime = reservation.formattedReservationDate?.toLowerCase().contains(query) ?? false;
-      return matchesClientName || matchesSellerName || matchesTotal || matchesDateTime;
-    }).toList();
-  });
-}
+  void _filterReservations() {
+    String query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredReservationList = _reservationList.where((reservation) {
+        bool matchesClientName =
+            reservation.clientNames?.toLowerCase().contains(query) ?? false;
+        bool matchesSellerName =
+            reservation.sellerNames?.toLowerCase().contains(query) ?? false;
+        bool matchesTotal =
+            reservation.totalReservation?.toString().contains(query) ?? false;
+        bool matchesDateTime = reservation.formattedReservationDate
+                ?.toLowerCase()
+                .contains(query) ??
+            false;
+        return matchesClientName ||
+            matchesSellerName ||
+            matchesTotal ||
+            matchesDateTime;
+      }).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,8 +102,12 @@ void _filterReservations() {
           bottom: const TabBar(
             indicatorColor: Colors.blue,
             tabs: [
-              Tab(child: Text('Activas', style: TextStyle(color: Colors.black))),
-              Tab(child: Text('Inactivas', style: TextStyle(color: Colors.black))),
+              Tab(
+                  child:
+                      Text('Activas', style: TextStyle(color: Colors.black))),
+              Tab(
+                  child:
+                      Text('Inactivas', style: TextStyle(color: Colors.black))),
             ],
           ),
         ),
@@ -119,7 +134,9 @@ void _filterReservations() {
 
     if (filteredReservations.isEmpty) {
       return Center(
-        child: Text(showActive ? 'No hay reservas activas' : 'No hay reservas inactivas'),
+        child: Text(showActive
+            ? 'No hay reservas activas'
+            : 'No hay reservas inactivas'),
       );
     }
 
@@ -194,7 +211,8 @@ void _filterReservations() {
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('No se puede abrir el formulario para reservas inactivas.'),
+                    content: Text(
+                        'No se puede abrir el formulario para reservas inactivas.'),
                   ),
                 );
               }
@@ -211,7 +229,9 @@ void _filterReservations() {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(reservation.active == 'A' ? "Eliminar Reserva" : "Restaurar Reserva"),
+          title: Text(reservation.active == 'A'
+              ? "Eliminar Reserva"
+              : "Restaurar Reserva"),
           content: Text(reservation.active == 'A'
               ? "¿Estás seguro de eliminar esta reserva?"
               : "¿Estás seguro de restaurar esta reserva?"),
@@ -220,7 +240,8 @@ void _filterReservations() {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text("Cancelar", style: TextStyle(color: Colors.red)),
+              child:
+                  const Text("Cancelar", style: TextStyle(color: Colors.red)),
             ),
             TextButton(
               onPressed: () {
@@ -231,7 +252,8 @@ void _filterReservations() {
                   _restoreReservation(context, reservation.id!);
                 }
               },
-              child: Text(reservation.active == 'A' ? "Sí, Eliminar" : "Sí, Restaurar",
+              child: Text(
+                  reservation.active == 'A' ? "Sí, Eliminar" : "Sí, Restaurar",
                   style: const TextStyle(color: Colors.blue)),
             ),
           ],

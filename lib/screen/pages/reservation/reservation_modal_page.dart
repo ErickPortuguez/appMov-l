@@ -31,14 +31,20 @@ class _ReservationModalPageState extends State<ReservationModalPage> {
   late TextEditingController _clientController;
   late TextEditingController _sellerController;
   late TextEditingController _paymentMethodController;
+  late TextEditingController _reservationDateController;
   List<ReservationDetail> _reservationDetails = [];
 
   @override
   void initState() {
     super.initState();
-    _clientController = TextEditingController(text: widget.reservation.clientNames);
-    _sellerController = TextEditingController(text: widget.reservation.sellerNames);
-    _paymentMethodController = TextEditingController(text: widget.reservation.paymentMethod.name);
+    _clientController =
+        TextEditingController(text: widget.reservation.clientNames);
+    _sellerController =
+        TextEditingController(text: widget.reservation.sellerNames);
+    _paymentMethodController =
+        TextEditingController(text: widget.reservation.paymentMethod.name);
+    _reservationDateController =
+        TextEditingController(text: widget.reservation.reservationDate);
     _reservationDetails.addAll(widget.reservation.reservationDetails);
   }
 
@@ -46,6 +52,7 @@ class _ReservationModalPageState extends State<ReservationModalPage> {
     if (_clientController.text.isEmpty ||
         _sellerController.text.isEmpty ||
         _paymentMethodController.text.isEmpty ||
+        _reservationDateController.text.isEmpty ||
         _reservationDetails.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -61,8 +68,8 @@ class _ReservationModalPageState extends State<ReservationModalPage> {
         client: widget.reservation.client,
         seller: widget.reservation.seller,
         paymentMethod: widget.reservation.paymentMethod,
-        reservationDate: widget.reservation.reservationDate.isNotEmpty
-            ? widget.reservation.reservationDate
+        reservationDate: _reservationDateController.text.isNotEmpty
+            ? _reservationDateController.text
             : DateTime.now().toIso8601String(),
         reservationDetails: _reservationDetails,
       );
@@ -70,7 +77,8 @@ class _ReservationModalPageState extends State<ReservationModalPage> {
       if (widget.reservation.id == null) {
         await ReservationService.createReservation(reservation);
       } else {
-        await ReservationService.updateReservation(reservation.id!, reservation);
+        await ReservationService.updateReservation(
+            reservation.id!, reservation);
       }
 
       widget.onReservationSaved(reservation, widget.reservation.id == null);
@@ -93,7 +101,8 @@ class _ReservationModalPageState extends State<ReservationModalPage> {
     if (selectedClient != null) {
       setState(() {
         widget.reservation.client = selectedClient;
-        _clientController.text = '${selectedClient.names} ${selectedClient.lastName}';
+        _clientController.text =
+            '${selectedClient.names} ${selectedClient.lastName}';
       });
     }
   }
@@ -109,7 +118,8 @@ class _ReservationModalPageState extends State<ReservationModalPage> {
     if (selectedSeller != null) {
       setState(() {
         widget.reservation.seller = selectedSeller;
-        _sellerController.text = '${selectedSeller.names} ${selectedSeller.lastName}';
+        _sellerController.text =
+            '${selectedSeller.names} ${selectedSeller.lastName}';
       });
     }
   }
@@ -127,6 +137,35 @@ class _ReservationModalPageState extends State<ReservationModalPage> {
         widget.reservation.paymentMethod = selectedMethod;
         _paymentMethodController.text = selectedMethod.name;
       });
+    }
+  }
+
+  void _selectReservationDate() async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (pickedDate != null) {
+      TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+      if (pickedTime != null) {
+        setState(() {
+          DateTime finalDateTime = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+          _reservationDateController.text = finalDateTime.toIso8601String();
+        });
+      }
     }
   }
 
@@ -202,8 +241,10 @@ class _ReservationModalPageState extends State<ReservationModalPage> {
                             } else {
                               quantity--;
                             }
-                            quantity = _roundToDecimals(quantity, allowDecimals ? 2 : 0);
-                            quantityController.text = quantity.toStringAsFixed(allowDecimals ? 2 : 0);
+                            quantity = _roundToDecimals(
+                                quantity, allowDecimals ? 2 : 0);
+                            quantityController.text =
+                                quantity.toStringAsFixed(allowDecimals ? 2 : 0);
                           }
                         });
                       },
@@ -216,7 +257,8 @@ class _ReservationModalPageState extends State<ReservationModalPage> {
                             title: const Text('Ingrese la cantidad'),
                             content: TextField(
                               controller: quantityController,
-                              keyboardType: TextInputType.numberWithOptions(decimal: allowDecimals),
+                              keyboardType: TextInputType.numberWithOptions(
+                                  decimal: allowDecimals),
                               decoration: const InputDecoration(
                                 hintText: 'Cantidad',
                               ),
@@ -224,7 +266,8 @@ class _ReservationModalPageState extends State<ReservationModalPage> {
                                 if (value.isNotEmpty) {
                                   setState(() {
                                     quantity = double.parse(value);
-                                    quantity = _roundToDecimals(quantity, allowDecimals ? 2 : 0);
+                                    quantity = _roundToDecimals(
+                                        quantity, allowDecimals ? 2 : 0);
                                   });
                                 }
                               },
@@ -257,8 +300,10 @@ class _ReservationModalPageState extends State<ReservationModalPage> {
                           } else {
                             quantity++;
                           }
-                          quantity = _roundToDecimals(quantity, allowDecimals ? 2 : 0);
-                          quantityController.text = quantity.toStringAsFixed(allowDecimals ? 2 : 0);
+                          quantity =
+                              _roundToDecimals(quantity, allowDecimals ? 2 : 0);
+                          quantityController.text =
+                              quantity.toStringAsFixed(allowDecimals ? 2 : 0);
                         });
                       },
                     ),
@@ -298,7 +343,9 @@ class _ReservationModalPageState extends State<ReservationModalPage> {
                         foregroundColor: Colors.white,
                       ),
                       child: Text(
-                        existingDetail != null ? 'Actualizar cantidad' : 'Agregar a la reserva',
+                        existingDetail != null
+                            ? 'Actualizar cantidad'
+                            : 'Agregar a la reserva',
                       ),
                     ),
                     ElevatedButton(
@@ -375,7 +422,8 @@ class _ReservationModalPageState extends State<ReservationModalPage> {
   double _calculateTotalAmount() {
     double totalAmount = 0;
     for (var reservationDetail in _reservationDetails) {
-      totalAmount += reservationDetail.amount * reservationDetail.product.priceUnit;
+      totalAmount +=
+          reservationDetail.amount * reservationDetail.product.priceUnit;
     }
     return totalAmount;
   }
@@ -451,6 +499,23 @@ class _ReservationModalPageState extends State<ReservationModalPage> {
               ),
             ),
             const SizedBox(height: 16),
+            InkWell(
+              onTap: _selectReservationDate,
+              child: InputDecorator(
+                decoration: const InputDecoration(
+                  labelText: 'Fecha de Reserva',
+                  prefixIcon: Icon(Icons.calendar_today),
+                  suffixIcon: Icon(Icons.navigate_next),
+                ),
+                child: Text(
+                  _reservationDateController.text.isNotEmpty
+                      ? _reservationDateController.text
+                      : 'Selecciona una fecha y hora',
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _addProduct,
               child: const Text('Añadir Producto'),
@@ -465,8 +530,9 @@ class _ReservationModalPageState extends State<ReservationModalPage> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _saveReservation,
-              child: Text(
-                  widget.reservation.id == null ? 'Guardar Reserva' : 'Guardar Cambios'),
+              child: Text(widget.reservation.id == null
+                  ? 'Guardar Reserva'
+                  : 'Guardar Cambios'),
             ),
           ],
         ),
