@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Ventas Panchita',
+      title: 'VENTAS GEMMA',
       theme: ThemeData(
         primarySwatch: Colors.blue, // Color principal de la aplicación
         scaffoldBackgroundColor: Colors.white, // Color de fondo de los Scaffold

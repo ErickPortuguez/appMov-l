@@ -11,6 +11,7 @@ import 'package:myapp/screen/pages/account/account_page.dart';
 import 'package:myapp/screen/pages/category/category_page.dart';
 import 'package:myapp/screen/pages/purchase/purchase_page.dart';
 import 'package:myapp/screen/pages/sale/sale_page.dart';
+import 'package:myapp/screen/pages/reservation/reservation_page.dart'; // Import the reservation page
 
 class HomePage extends StatefulWidget {
   final Seller seller;
@@ -27,8 +28,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     Widget container;
-    var appBarTitle = DrawerSections.dashboard.title; // Valor predeterminado
-    List<Widget> actions = []; // Lista de acciones para la AppBar
+    var appBarTitle = DrawerSections.dashboard.title; // Default value
+    List<Widget> actions = []; // List of actions for the AppBar
 
     switch (currentPage) {
       case DrawerSections.dashboard:
@@ -62,6 +63,10 @@ class _HomePageState extends State<HomePage> {
         container = const PurchasePage();
         appBarTitle = DrawerSections.purchases.title;
         break;
+      case DrawerSections.reservations:
+        container = const ReservationsPage();
+        appBarTitle = DrawerSections.reservations.title;
+        break;
       case DrawerSections.account:
         container = const SettingsPage();
         appBarTitle = DrawerSections.account.title;
@@ -79,7 +84,7 @@ class _HomePageState extends State<HomePage> {
           appBarTitle,
           style: const TextStyle(color: Colors.white),
         ),
-        actions: actions, // Añadir las acciones aquí
+        actions: actions, // Add actions here
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: container,
@@ -92,7 +97,7 @@ class _HomePageState extends State<HomePage> {
                 lastName: widget.seller.lastName,
                 email: widget.seller.email,
               ),
-              MyDrawerList(widget.seller.sellerRol), // Pasar el rol del usuario
+              MyDrawerList(widget.seller.sellerRol), // Pass the user role
             ],
           ),
         ),
@@ -100,7 +105,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Función que construye la lista de elementos del menú lateral
+  // Function that builds the list of menu items
   Widget MyDrawerList(String rolPerson) {
     return Container(
       padding: const EdgeInsets.only(top: 15),
@@ -114,6 +119,7 @@ class _HomePageState extends State<HomePage> {
           menuItem(DrawerSections.suppliers),
           menuItem(DrawerSections.sales),
           menuItem(DrawerSections.purchases),
+          menuItem(DrawerSections.reservations), // Add reservations menu item
           const Divider(),
           menuItem(DrawerSections.account),
           const Divider(),
@@ -123,7 +129,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Función que construye un elemento del menú
+  // Function that builds a menu item
   Widget menuItem(DrawerSections section) {
     return Material(
       color: currentPage == section ? Colors.grey[300] : Colors.transparent,
@@ -169,7 +175,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Función que devuelve el ícono correspondiente a cada sección del menú
+  // Function that returns the icon for each menu section
   IconData _getIconForSection(DrawerSections section) {
     switch (section) {
       case DrawerSections.dashboard:
@@ -188,6 +194,8 @@ class _HomePageState extends State<HomePage> {
         return Icons.point_of_sale;
       case DrawerSections.purchases:
         return Icons.shopping_cart;
+      case DrawerSections.reservations:
+        return Icons.book_online; // Icon for reservations
       case DrawerSections.account:
         return Icons.person;
       case DrawerSections.logout:
@@ -205,6 +213,7 @@ enum DrawerSections {
   suppliers,
   sales,
   purchases,
+  reservations, // Add reservations section
   account,
   logout,
 }
@@ -228,6 +237,8 @@ extension DrawerSectionExtension on DrawerSections {
         return "Ventas";
       case DrawerSections.purchases:
         return "Compras";
+      case DrawerSections.reservations:
+        return "Reservas"; // Title for reservations
       case DrawerSections.account:
         return "Mi Cuenta";
       case DrawerSections.logout:

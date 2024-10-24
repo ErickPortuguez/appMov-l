@@ -6,13 +6,15 @@ import 'package:myapp/models/purchase_model.dart';
 import 'package:myapp/models/sale_model.dart';
 import 'package:myapp/models/seller_model.dart';
 import 'package:myapp/models/supplier_model.dart';
+import 'package:myapp/models/reservation_model.dart'; // Import the reservation model
 import 'package:myapp/services/category_service.dart';
 import 'package:myapp/services/client_service.dart';
 import 'package:myapp/services/product_service.dart';
 import 'package:myapp/services/purchase_service.dart';
 import 'package:myapp/services/sale_service.dart';
 import 'package:myapp/services/seller_service.dart';
-import 'package:myapp/services/supplier_service.dart'; // Importa tu servicio API aquí
+import 'package:myapp/services/supplier_service.dart';
+import 'package:myapp/services/reservation_service.dart'; // Import the reservation service
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -30,6 +32,7 @@ class _DashboardPageState extends State<DashboardPage> {
   int activeProductsCount = 0;
   int activeSalesCount = 0;
   int activePurchasesCount = 0;
+  int activeReservationsCount = 0; // Add variable for active reservations
 
   Future<void> _getActiveClients() async {
     try {
@@ -55,8 +58,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Future<void> _getActiveSuppliers() async {
     try {
-      List<Supplier> activeSuppliers =
-          await ApiServiceSupplier.getActiveSuppliers();
+      List<Supplier> activeSuppliers = await ApiServiceSupplier.getActiveSuppliers();
       setState(() {
         activeSuppliersCount = activeSuppliers.length;
       });
@@ -67,8 +69,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Future<void> _getActiveCategories() async {
     try {
-      List<Category> activeCategories =
-          await ApiServiceCategory.getActiveCategories();
+      List<Category> activeCategories = await ApiServiceCategory.getActiveCategories();
       setState(() {
         activeCategoriesCount = activeCategories.length;
       });
@@ -79,8 +80,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Future<void> _getActiveProducts() async {
     try {
-      List<Product> activeProducts =
-          await ApiServiceProduct.getActiveProducts();
+      List<Product> activeProducts = await ApiServiceProduct.getActiveProducts();
       setState(() {
         activeProductsCount = activeProducts.length;
       });
@@ -102,13 +102,23 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Future<void> _getActivePurchases() async {
     try {
-      List<Purchase> activePurchases =
-          await PurchaseService.getActivePurchases();
+      List<Purchase> activePurchases = await PurchaseService.getActivePurchases();
       setState(() {
         activePurchasesCount = activePurchases.length;
       });
     } catch (e) {
       print('Error fetching active purchases: $e');
+    }
+  }
+
+  Future<void> _getActiveReservations() async {
+    try {
+      List<Reservation> activeReservations = await ReservationService.getActiveReservations();
+      setState(() {
+        activeReservationsCount = activeReservations.length;
+      });
+    } catch (e) {
+      print('Error fetching active reservations: $e');
     }
   }
 
@@ -122,6 +132,7 @@ class _DashboardPageState extends State<DashboardPage> {
     _getActiveProducts();
     _getActiveSales();
     _getActivePurchases();
+    _getActiveReservations(); // Fetch active reservations
   }
 
   @override
@@ -138,32 +149,16 @@ class _DashboardPageState extends State<DashboardPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildStatCard(
-                      'Ventas',
-                      activeSalesCount,
-                      Icons.attach_money,
-                      Colors
-                          .deepPurple), // Ejemplo estático, sustituir por valor real si se tiene
-                  _buildStatCard(
-                      'Compras',
-                      activePurchasesCount,
-                      Icons.shopping_cart,
-                      Colors
-                          .deepOrange), // Ejemplo estático, sustituir por valor real si se tiene
+                  _buildStatCard('Ventas', activeSalesCount, Icons.attach_money, Colors.deepPurple),
+                  _buildStatCard('Compras', activePurchasesCount, Icons.shopping_cart, Colors.deepOrange),
                 ],
               ),
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildStatCard('Clientes', activeClientsCount, Icons.people,
-                      Colors.blue),
-                  _buildStatCard(
-                      'Vendedores',
-                      activeSellersCount,
-                      Icons.person,
-                      Colors
-                          .orange), // Ejemplo estático, sustituir por valor real si se tiene
+                  _buildStatCard('Clientes', activeClientsCount, Icons.people, Colors.blue),
+                  _buildStatCard('Vendedores', activeSellersCount, Icons.person, Colors.orange),
                 ],
               ),
               const SizedBox(height: 20),
@@ -171,18 +166,8 @@ class _DashboardPageState extends State<DashboardPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildStatCard(
-                      'Productos',
-                      activeProductsCount,
-                      Icons.shopping_basket,
-                      Colors
-                          .green), // Ejemplo estático, sustituir por valor real si se tiene
-                  _buildStatCard(
-                      'Categorías',
-                      activeCategoriesCount,
-                      Icons.category,
-                      Colors
-                          .teal), // Ejemplo estático, sustituir por valor real si se tiene
+                  _buildStatCard('Productos', activeProductsCount, Icons.shopping_basket, Colors.green),
+                  _buildStatCard('Categorías', activeCategoriesCount, Icons.category, Colors.teal),
                 ],
               ),
               const SizedBox(height: 20),
@@ -190,12 +175,8 @@ class _DashboardPageState extends State<DashboardPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildStatCard(
-                      'Proveedores',
-                      activeSuppliersCount,
-                      Icons.business,
-                      Colors
-                          .purple), // Ejemplo estático, sustituir por valor real si se tiene
+                  _buildStatCard('Proveedores', activeSuppliersCount, Icons.business, Colors.purple),
+                  _buildStatCard('Reservas', activeReservationsCount, Icons.book_online, Colors.red), // Add reservations card
                 ],
               ),
             ],
@@ -206,8 +187,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   // Método para construir cada tarjeta de estadística
-  Widget _buildStatCard(
-      String title, int value, IconData iconData, Color color) {
+  Widget _buildStatCard(String title, int value, IconData iconData, Color color) {
     return Expanded(
       child: Card(
         elevation: 3,
@@ -227,17 +207,13 @@ class _DashboardPageState extends State<DashboardPage> {
               const SizedBox(height: 12),
               Text(
                 title,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
                 value.toString(),
-                style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87),
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87),
               ),
             ],
           ),
