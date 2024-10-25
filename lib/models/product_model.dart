@@ -2,6 +2,7 @@ import 'package:myapp/models/category_model.dart';
 
 class Product {
   final int id;
+  final String code; // Add the code field
   final String name;
   final Category categoryProduct;
   final double priceUnit;
@@ -12,6 +13,7 @@ class Product {
 
   Product({
     required this.id,
+    required this.code, // Add the code field
     required this.name,
     required this.categoryProduct,
     required this.priceUnit,
@@ -24,6 +26,7 @@ class Product {
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
       id: json["id"] ?? 0,
+      code: json["code"] ?? "", // Add the code field
       name: json["name"] ?? "",
       categoryProduct: Category.fromJson(json["categoryProduct"] ?? {}),
       priceUnit: (json["priceUnit"] ?? 0).toDouble(),
@@ -39,6 +42,7 @@ class Product {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'code': code, // Add the code field
       'name': name,
       'categoryProduct': categoryProduct.toJson(),
       'priceUnit': priceUnit,
@@ -52,6 +56,7 @@ class Product {
   static Product empty() {
     return Product(
       id: 0,
+      code: '', // Add the code field
       name: '',
       categoryProduct: Category.empty(),
       priceUnit: 0.0,

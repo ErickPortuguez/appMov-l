@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:myapp/models/product_model.dart';
@@ -19,12 +17,12 @@ class ProductModalPage extends StatefulWidget {
   });
 
   @override
-  // ignore: library_private_types_in_public_api
   _ProductModalPageState createState() => _ProductModalPageState();
 }
 
 class _ProductModalPageState extends State<ProductModalPage> {
   late TextEditingController _nameController;
+  late TextEditingController _codeController; // Add this line
   late TextEditingController _priceUnitController;
   late String _selectedUnitSale;
   late TextEditingController _stockController;
@@ -39,6 +37,7 @@ class _ProductModalPageState extends State<ProductModalPage> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.product.name);
+    _codeController = TextEditingController(text: widget.product.code); // Add this line
     _priceUnitController = TextEditingController(
         text: widget.product.priceUnit > 0
             ? widget.product.priceUnit.toString()
@@ -53,7 +52,6 @@ class _ProductModalPageState extends State<ProductModalPage> {
     );
     _isNewProduct = widget.product.id == 0;
 
-    // Inicializa _selectedUnitSale con un valor válido
     _selectedUnitSale =
         widget.product.unitSale.isNotEmpty ? widget.product.unitSale : 'Unidad';
 
@@ -132,6 +130,7 @@ class _ProductModalPageState extends State<ProductModalPage> {
     try {
       final product = Product(
         id: widget.product.id,
+        code: _codeController.text, // Add this line
         name: _nameController.text,
         categoryProduct: _selectedCategory,
         priceUnit: double.tryParse(_priceUnitController.text) ?? 0.0,
@@ -161,14 +160,23 @@ class _ProductModalPageState extends State<ProductModalPage> {
     if (value == null || value.isEmpty) {
       return 'Por favor ingresa el nombre del producto';
     }
-    // Verificar que cada palabra empiece con mayúscula y permitir espacios
     final RegExp nameRegExp = RegExp(r'^[A-ZÁÉÍÓÚÜÑ][a-zA-Záéíóúüñ\s]*$');
-
     if (!nameRegExp.hasMatch(value)) {
       return 'Cada palabra debe empezar con mayúscula';
     }
     if (_nameExists) {
       return 'El nombre ya está registrado';
+    }
+    return null;
+  }
+
+  String? _validateCode(String? value) { // Add this method
+    if (value == null || value.isEmpty) {
+      return 'Por favor ingresa el código del producto';
+    }
+    final RegExp codeRegExp = RegExp(r'^P\d{3}$');
+    if (!codeRegExp.hasMatch(value)) {
+      return 'El código debe empezar con "P" seguido de 3 dígitos';
     }
     return null;
   }
@@ -190,13 +198,11 @@ class _ProductModalPageState extends State<ProductModalPage> {
 
   String? _validateDateExpiry(String? value) {
     if (value != null && value.isNotEmpty) {
-      // ignore: unnecessary_nullable_for_final_variable_declarations
       final DateTime? dateExpiry = DateFormat('dd-MMM-yyyy').parse(value);
       if (dateExpiry == null) {
         return 'Fecha de nacimiento inválida';
       }
       final DateTime today = DateTime.now();
-
       if (!dateExpiry.isAfter(today)) {
         return 'La fecha de expiración debe ser mayor a la fecha actual';
       }
@@ -208,32 +214,26 @@ class _ProductModalPageState extends State<ProductModalPage> {
     if (value == null || value.isEmpty) {
       return 'Por favor ingresa el stock';
     }
-
-    // Verificar si el valor es numérico
     final stock = double.tryParse(value);
     if (stock == null || stock <= 0) {
       return 'Ingresa un stock válido (mayor que cero)';
     }
-
-    // Verificar formato según la unidad de venta seleccionada
     if (_selectedUnitSale == 'Unidad') {
-      // Validación para unidad (debe ser entero)
       if (stock.round() != stock) {
         return 'El stock debe ser un número entero para unidades';
       }
     } else if (_selectedUnitSale == 'Kilo') {
-      // Validación para kilo (puede ser entero o decimal con máximo dos decimales)
       if (!RegExp(r'^\d+(\.\d{1,2})?$').hasMatch(value)) {
         return 'El stock debe ser un número entero o decimal';
       }
     }
-
-    return null; // Validación exitosa
+    return null;
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _codeController.dispose(); // Add this line
     _priceUnitController.dispose();
     _stockController.dispose();
     _dateExpiryController.dispose();
@@ -269,16 +269,24 @@ class _ProductModalPageState extends State<ProductModalPage> {
                   ),
                   textInputAction: TextInputAction.next,
                   onChanged: (value) {
-                    // Limpiar la bandera de nombre existente al cambiar el valor
                     setState(() {
                       _nameExists = false;
                     });
-                    // Verificar si el nombre existe al cambiar el valor
                     if (value.isNotEmpty) {
                       _checkNameExists(value);
                     }
                   },
                   validator: _validateName,
+                ),
+                const SizedBox(height: 16),
+                TextFormField( // Add this block
+                  controller: _codeController,
+                  decoration: const InputDecoration(
+                    labelText: 'Código',
+                    prefixIcon: Icon(Icons.code),
+                  ),
+                  textInputAction: TextInputAction.next,
+                  validator: _validateCode,
                 ),
                 const SizedBox(height: 16),
                 InkWell(
@@ -289,13 +297,12 @@ class _ProductModalPageState extends State<ProductModalPage> {
                     decoration: const InputDecoration(
                       labelText: 'Categoría',
                       prefixIcon: Icon(Icons.category),
-                      suffixIcon:
-                          Icon(Icons.navigate_next), // Icono de navegación
+                      suffixIcon: Icon(Icons.navigate_next),
                     ),
                     child: Text(
                       _selectedCategory.name.isNotEmpty
                           ? _selectedCategory.name
-                          : '', // Mostrar nombre solo si no está vacío
+                          : '',
                       style: const TextStyle(fontSize: 16),
                     ),
                   ),
@@ -308,8 +315,7 @@ class _ProductModalPageState extends State<ProductModalPage> {
                     prefixIcon: Icon(Icons.attach_money),
                     prefixText: 'S/. ',
                   ),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   validator: _validatePrice,
                 ),
                 const SizedBox(height: 16),
